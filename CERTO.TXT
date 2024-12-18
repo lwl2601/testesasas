@@ -1,0 +1,36 @@
+import pdfplumber
+import pandas as pd
+
+def extrair_tabelas_para_excel(caminho_pdf, caminho_excel):
+    with pdfplumber.open(caminho_pdf) as pdf:
+        dados_todas_tabelas = []
+        for pagina in pdf.pages:
+            tabelas = pagina.extract_tables()
+            for tabela in tabelas:
+                for linha in tabela:
+                    # Separar as datas para a coluna zero
+                    if linha and linha[0]:  # Verifica se há conteúdo na linha e na primeira célula
+                        linha[0] = extrair_data(linha[0])  # Extrai apenas a data
+                    dados_todas_tabelas.append(linha)
+    
+    # Criar um DataFrame
+    colunas = ["Data", "Coluna 1", "Coluna 2", "Coluna 3", "Coluna 4", "Coluna 5", "Coluna 6"]
+    df = pd.DataFrame(dados_todas_tabelas, columns=colunas)
+    
+    # Salvar no Excel
+    df.to_excel(caminho_excel, index=False)
+    print(f"Dados exportados com sucesso para {caminho_excel}")
+
+def extrair_data(texto):
+    """Função para extrair uma data de um texto."""
+    import re
+    padrao_data = r"\d{2}/\d{2}/\d{4}"  # Exemplo: 11/10/2022
+    match = re.search(padrao_data, texto)
+    return match.group(0) if match else texto  # Retorna a data encontrada ou o texto original
+
+# Caminhos
+caminho_pdf = r"C:\Users\Léo\Downloads\PAULO_DE_MELO_(BANCO_DO_BRASIL_-_40500-0) (1).pdf"
+caminho_excel = r"C:\Users\Léo\Downloads\tabelas_extraidas.xlsx"
+
+# Executar
+extrair_tabelas_para_excel(caminho_pdf, caminho_excel)

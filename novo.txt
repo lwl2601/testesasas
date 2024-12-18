@@ -1,0 +1,4 @@
+pdf_path = r"C:\Users\Léo\Downloads\L._DE_MORAES_MENESES_(BRADESCO_-_77015-9)-409627b7ff15 (1).pdf"
+
+# Caminho para o arquivo Excel de saída
+output_file = r"C:\Users\Léo\Downloads\tabelas_extraidas.xlsx"

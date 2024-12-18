@@ -1,0 +1,45 @@
+import pdfplumber
+import pandas as pd
+import re
+
+# Função para extrair os extratos do PDF
+def extrair_extratos(pdf_path):
+    dados_extratos = []
+
+    # Abre o PDF e extrai o texto de cada página
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            texto = page.extract_text()
+            if texto:
+                # Expressão regular para capturar as informações desejadas
+                pattern = r"(\d{2}/\d{2}/\d{4})\s*(\w+)\s*(.*)\s*(\d.*)\s*([\d.,]+)\s*([\d.,]+)"
+                for linha in texto.split('\n'):
+                    match = re.search(pattern, linha)
+                    if match:
+                        dados_extratos.append({
+                            "Data Movim.": match.group(1),
+                            "Dep. Origem": match.group(2),
+                            "Histórico": match.group(3),
+                            "Documento": match.group(4),
+                            "Valor": match.group(5),
+                            "Saldo": match.group(6)
+                        })
+
+    return dados_extratos
+
+# Salvamento de dados em Excel
+def salvar_em_excel(dados, caminho_excel):
+    df = pd.DataFrame(dados)
+    df.to_excel(caminho_excel, index=False)
+    print(f"Arquivo '{caminho_excel}' salvo com sucesso!")
+
+# Caminho para o PDF e o Excel de saída
+caminho_pdf = 'C:/Users/Léo/Downloads/PAULO_DE_MELO_(BANCO_DO_BRASIL_-_40500-0).pdf'
+caminho_excel = 'C:/Users/Léo/Downloads/extratos.xlsx'
+
+# Extração dos dados do PDF
+dados_extratos = extrair_extratos(caminho_pdf)
+if dados_extratos:
+    salvar_em_excel(dados_extratos, caminho_excel)
+else:
+    print("Nenhum extrato encontrado no PDF.")
